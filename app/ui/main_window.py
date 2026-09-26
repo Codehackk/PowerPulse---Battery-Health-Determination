@@ -12,6 +12,7 @@ from PySide6.QtWidgets import (
 from app.core.config import APP_TITLE, WINDOW_WIDTH, WINDOW_HEIGHT
 from app.views.dashboard import DashboardView
 from app.diagnostics import DiagnosticsView
+from app.views.rul_analysis import RULAnalysisView
 
 
 class MainWindow(QMainWindow):
@@ -78,7 +79,10 @@ class MainWindow(QMainWindow):
             }
         """)
 
+        # ---------------------------------------------------------
         # Main application container
+        # ---------------------------------------------------------
+
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
 
@@ -102,8 +106,12 @@ class MainWindow(QMainWindow):
         logo = QLabel("POWERPULSE")
         logo.setObjectName("brand")
 
-        brand_subtitle = QLabel("Battery Intelligence Platform")
-        brand_subtitle.setObjectName("brand_subtitle")
+        brand_subtitle = QLabel(
+            "Battery Intelligence Platform"
+        )
+        brand_subtitle.setObjectName(
+            "brand_subtitle"
+        )
 
         sidebar_layout.addWidget(logo)
         sidebar_layout.addWidget(brand_subtitle)
@@ -117,76 +125,152 @@ class MainWindow(QMainWindow):
         vendors_button = QPushButton("Vendors")
         reports_button = QPushButton("Reports")
 
-        dashboard_button.setObjectName("active_button")
+        dashboard_button.setObjectName(
+            "active_button"
+        )
 
-        sidebar_layout.addWidget(dashboard_button)
-        sidebar_layout.addWidget(diagnostics_button)
-        sidebar_layout.addWidget(rul_button)
-        sidebar_layout.addWidget(valuation_button)
-        sidebar_layout.addWidget(second_life_button)
-        sidebar_layout.addWidget(vendors_button)
-        sidebar_layout.addWidget(reports_button)
+        sidebar_layout.addWidget(
+            dashboard_button
+        )
+
+        sidebar_layout.addWidget(
+            diagnostics_button
+        )
+
+        sidebar_layout.addWidget(
+            rul_button
+        )
+
+        sidebar_layout.addWidget(
+            valuation_button
+        )
+
+        sidebar_layout.addWidget(
+            second_life_button
+        )
+
+        sidebar_layout.addWidget(
+            vendors_button
+        )
+
+        sidebar_layout.addWidget(
+            reports_button
+        )
 
         sidebar_layout.addStretch()
 
         settings_button = QPushButton("Settings")
-        sidebar_layout.addWidget(settings_button)
+
+        sidebar_layout.addWidget(
+            settings_button
+        )
 
         # ---------------------------------------------------------
-        # Page Container
+        # Content area
         # ---------------------------------------------------------
 
         content_area = QFrame()
-        content_area.setObjectName("content_area")
+        content_area.setObjectName(
+            "content_area"
+        )
 
-        content_layout = QVBoxLayout(content_area)
-        content_layout.setContentsMargins(28, 28, 28, 28)
+        content_layout = QVBoxLayout(
+            content_area
+        )
+
+        content_layout.setContentsMargins(
+            28,
+            28,
+            28,
+            28,
+        )
+
         content_layout.setSpacing(0)
 
-        # Stacked pages
+        # ---------------------------------------------------------
+        # Page stack
+        # ---------------------------------------------------------
+
         pages = QStackedWidget()
 
         dashboard = DashboardView()
         diagnostics = DiagnosticsView()
+        rul_analysis = RULAnalysisView()
 
         pages.addWidget(dashboard)
         pages.addWidget(diagnostics)
+        pages.addWidget(rul_analysis)
 
         content_layout.addWidget(pages)
 
         # ---------------------------------------------------------
-        # Navigation
+        # Navigation helper
+        # ---------------------------------------------------------
+
+        buttons = [
+            dashboard_button,
+            diagnostics_button,
+            rul_button,
+        ]
+
+        def set_active_button(active_button):
+            for button in buttons:
+                button.setObjectName("")
+
+            active_button.setObjectName(
+                "active_button"
+            )
+
+            for button in buttons:
+                button.style().unpolish(button)
+                button.style().polish(button)
+                button.update()
+
+        # ---------------------------------------------------------
+        # Page navigation
         # ---------------------------------------------------------
 
         def show_dashboard():
-            pages.setCurrentWidget(dashboard)
+            pages.setCurrentWidget(
+                dashboard
+            )
 
-            dashboard_button.setObjectName("active_button")
-            diagnostics_button.setObjectName("")
-
-            dashboard_button.style().unpolish(dashboard_button)
-            dashboard_button.style().polish(dashboard_button)
-
-            diagnostics_button.style().unpolish(diagnostics_button)
-            diagnostics_button.style().polish(diagnostics_button)
+            set_active_button(
+                dashboard_button
+            )
 
         def show_diagnostics():
-            pages.setCurrentWidget(diagnostics)
+            pages.setCurrentWidget(
+                diagnostics
+            )
 
-            dashboard_button.setObjectName("")
-            diagnostics_button.setObjectName("active_button")
+            set_active_button(
+                diagnostics_button
+            )
 
-            dashboard_button.style().unpolish(dashboard_button)
-            dashboard_button.style().polish(dashboard_button)
+        def show_rul_analysis():
+            pages.setCurrentWidget(
+                rul_analysis
+            )
 
-            diagnostics_button.style().unpolish(diagnostics_button)
-            diagnostics_button.style().polish(diagnostics_button)
+            set_active_button(
+                rul_button
+            )
 
-        dashboard_button.clicked.connect(show_dashboard)
-        diagnostics_button.clicked.connect(show_diagnostics)
+        dashboard_button.clicked.connect(
+            show_dashboard
+        )
+
+        diagnostics_button.clicked.connect(
+            show_diagnostics
+        )
+
+        rul_button.clicked.connect(
+            show_rul_analysis
+        )
 
         # ---------------------------------------------------------
-        # Final Layout
+        # Final layout
         # ---------------------------------------------------------
 
         main_layout.addWidget(sidebar)
