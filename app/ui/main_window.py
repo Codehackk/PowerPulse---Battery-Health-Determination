@@ -15,6 +15,8 @@ from app.diagnostics import DiagnosticsView
 from app.views.rul_analysis import RULAnalysisView
 from app.views.valuation import ValuationView
 from app.views.second_life import SecondLifeView
+from app.views.vendors import VendorsView
+from app.views.reports import ReportsView
 
 
 class MainWindow(QMainWindow):
@@ -131,54 +133,28 @@ class MainWindow(QMainWindow):
             "active_button"
         )
 
-        sidebar_layout.addWidget(
-            dashboard_button
-        )
-
-        sidebar_layout.addWidget(
-            diagnostics_button
-        )
-
-        sidebar_layout.addWidget(
-            rul_button
-        )
-
-        sidebar_layout.addWidget(
-            valuation_button
-        )
-
-        sidebar_layout.addWidget(
-            second_life_button
-        )
-
-        sidebar_layout.addWidget(
-            vendors_button
-        )
-
-        sidebar_layout.addWidget(
-            reports_button
-        )
+        sidebar_layout.addWidget(dashboard_button)
+        sidebar_layout.addWidget(diagnostics_button)
+        sidebar_layout.addWidget(rul_button)
+        sidebar_layout.addWidget(valuation_button)
+        sidebar_layout.addWidget(second_life_button)
+        sidebar_layout.addWidget(vendors_button)
+        sidebar_layout.addWidget(reports_button)
 
         sidebar_layout.addStretch()
 
         settings_button = QPushButton("Settings")
 
-        sidebar_layout.addWidget(
-            settings_button
-        )
+        sidebar_layout.addWidget(settings_button)
 
         # ---------------------------------------------------------
         # Content area
         # ---------------------------------------------------------
 
         content_area = QFrame()
-        content_area.setObjectName(
-            "content_area"
-        )
+        content_area.setObjectName("content_area")
 
-        content_layout = QVBoxLayout(
-            content_area
-        )
+        content_layout = QVBoxLayout(content_area)
 
         content_layout.setContentsMargins(
             28,
@@ -200,12 +176,16 @@ class MainWindow(QMainWindow):
         rul_analysis = RULAnalysisView()
         valuation = ValuationView()
         second_life = SecondLifeView()
+        vendors = VendorsView()
+        reports = ReportsView()
 
         pages.addWidget(dashboard)
         pages.addWidget(diagnostics)
         pages.addWidget(rul_analysis)
         pages.addWidget(valuation)
         pages.addWidget(second_life)
+        pages.addWidget(vendors)
+        pages.addWidget(reports)
 
         content_layout.addWidget(pages)
 
@@ -219,6 +199,8 @@ class MainWindow(QMainWindow):
             rul_button,
             valuation_button,
             second_life_button,
+            vendors_button,
+            reports_button,
         ]
 
         def set_active_button(active_button):
@@ -239,69 +221,40 @@ class MainWindow(QMainWindow):
         # ---------------------------------------------------------
 
         def show_dashboard():
-            pages.setCurrentWidget(
-                dashboard
-            )
-
-            set_active_button(
-                dashboard_button
-            )
+            pages.setCurrentWidget(dashboard)
+            set_active_button(dashboard_button)
 
         def show_diagnostics():
-            pages.setCurrentWidget(
-                diagnostics
-            )
-
-            set_active_button(
-                diagnostics_button
-            )
+            pages.setCurrentWidget(diagnostics)
+            set_active_button(diagnostics_button)
 
         def show_rul_analysis():
-            pages.setCurrentWidget(
-                rul_analysis
-            )
-
-            set_active_button(
-                rul_button
-            )
+            pages.setCurrentWidget(rul_analysis)
+            set_active_button(rul_button)
 
         def show_valuation():
-            pages.setCurrentWidget(
-                valuation
-            )
-
-            set_active_button(
-                valuation_button
-            )
+            pages.setCurrentWidget(valuation)
+            set_active_button(valuation_button)
 
         def show_second_life():
-            pages.setCurrentWidget(
-                second_life
-            )
+            pages.setCurrentWidget(second_life)
+            set_active_button(second_life_button)
 
-            set_active_button(
-                second_life_button
-            )
+        def show_vendors():
+            pages.setCurrentWidget(vendors)
+            set_active_button(vendors_button)
 
-        dashboard_button.clicked.connect(
-            show_dashboard
-        )
+        def show_reports():
+            pages.setCurrentWidget(reports)
+            set_active_button(reports_button)
 
-        diagnostics_button.clicked.connect(
-            show_diagnostics
-        )
-
-        rul_button.clicked.connect(
-            show_rul_analysis
-        )
-
-        valuation_button.clicked.connect(
-            show_valuation
-        )
-
-        second_life_button.clicked.connect(
-            show_second_life
-        )
+        dashboard_button.clicked.connect(show_dashboard)
+        diagnostics_button.clicked.connect(show_diagnostics)
+        rul_button.clicked.connect(show_rul_analysis)
+        valuation_button.clicked.connect(show_valuation)
+        second_life_button.clicked.connect(show_second_life)
+        vendors_button.clicked.connect(show_vendors)
+        reports_button.clicked.connect(show_reports)
 
         # ---------------------------------------------------------
         # Final layout
