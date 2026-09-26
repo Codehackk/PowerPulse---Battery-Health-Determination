@@ -13,6 +13,7 @@ from app.core.config import APP_TITLE, WINDOW_WIDTH, WINDOW_HEIGHT
 from app.views.dashboard import DashboardView
 from app.diagnostics import DiagnosticsView
 from app.views.rul_analysis import RULAnalysisView
+from app.views.valuation import ValuationView
 
 
 class MainWindow(QMainWindow):
@@ -196,10 +197,12 @@ class MainWindow(QMainWindow):
         dashboard = DashboardView()
         diagnostics = DiagnosticsView()
         rul_analysis = RULAnalysisView()
+        valuation = ValuationView()
 
         pages.addWidget(dashboard)
         pages.addWidget(diagnostics)
         pages.addWidget(rul_analysis)
+        pages.addWidget(valuation)
 
         content_layout.addWidget(pages)
 
@@ -211,6 +214,7 @@ class MainWindow(QMainWindow):
             dashboard_button,
             diagnostics_button,
             rul_button,
+            valuation_button,
         ]
 
         def set_active_button(active_button):
@@ -257,6 +261,15 @@ class MainWindow(QMainWindow):
                 rul_button
             )
 
+        def show_valuation():
+            pages.setCurrentWidget(
+                valuation
+            )
+
+            set_active_button(
+                valuation_button
+            )
+
         dashboard_button.clicked.connect(
             show_dashboard
         )
@@ -267,6 +280,10 @@ class MainWindow(QMainWindow):
 
         rul_button.clicked.connect(
             show_rul_analysis
+        )
+
+        valuation_button.clicked.connect(
+            show_valuation
         )
 
         # ---------------------------------------------------------
