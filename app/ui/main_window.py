@@ -14,6 +14,7 @@ from app.views.dashboard import DashboardView
 from app.diagnostics import DiagnosticsView
 from app.views.rul_analysis import RULAnalysisView
 from app.views.valuation import ValuationView
+from app.views.second_life import SecondLifeView
 
 
 class MainWindow(QMainWindow):
@@ -198,11 +199,13 @@ class MainWindow(QMainWindow):
         diagnostics = DiagnosticsView()
         rul_analysis = RULAnalysisView()
         valuation = ValuationView()
+        second_life = SecondLifeView()
 
         pages.addWidget(dashboard)
         pages.addWidget(diagnostics)
         pages.addWidget(rul_analysis)
         pages.addWidget(valuation)
+        pages.addWidget(second_life)
 
         content_layout.addWidget(pages)
 
@@ -215,6 +218,7 @@ class MainWindow(QMainWindow):
             diagnostics_button,
             rul_button,
             valuation_button,
+            second_life_button,
         ]
 
         def set_active_button(active_button):
@@ -270,6 +274,15 @@ class MainWindow(QMainWindow):
                 valuation_button
             )
 
+        def show_second_life():
+            pages.setCurrentWidget(
+                second_life
+            )
+
+            set_active_button(
+                second_life_button
+            )
+
         dashboard_button.clicked.connect(
             show_dashboard
         )
@@ -284,6 +297,10 @@ class MainWindow(QMainWindow):
 
         valuation_button.clicked.connect(
             show_valuation
+        )
+
+        second_life_button.clicked.connect(
+            show_second_life
         )
 
         # ---------------------------------------------------------
