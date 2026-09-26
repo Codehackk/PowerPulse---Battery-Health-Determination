@@ -276,6 +276,10 @@ class MainWindow(QMainWindow):
 
         reports = ReportsView()
 
+        diagnostics.analysis_completed.connect(
+            reports.update_from_analysis
+        )
+
         settings = SettingsView()
 
         # ---------------------------------------------------------

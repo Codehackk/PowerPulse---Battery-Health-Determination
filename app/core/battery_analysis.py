@@ -27,6 +27,7 @@ def analyze_battery(
     battery,
     annual_degradation_rate,
     minimum_soh=70.0,
+    expected_life_years=10.0,
 ):
     """
     Run the complete PowerPulse battery analysis.
@@ -39,8 +40,14 @@ def analyze_battery(
     annual_degradation_rate : float
         Expected annual SoH degradation percentage.
 
-    minimum_soh : float
+    minimum_soh : float, optional
         Minimum SoH used by the RUL model.
+        Default is 70.0%.
+
+    expected_life_years : float, optional
+        Expected total battery life used by the
+        valuation model.
+        Default is 10.0 years.
 
     Returns
     -------
@@ -48,9 +55,32 @@ def analyze_battery(
         Consolidated battery analysis results.
     """
 
+    # ---------------------------------------------------------
+    # Validate battery object
+    # ---------------------------------------------------------
+
     if not isinstance(battery, BatteryData):
         raise TypeError(
             "battery must be a BatteryData instance."
+        )
+
+    # ---------------------------------------------------------
+    # Validate analysis parameters
+    # ---------------------------------------------------------
+
+    if annual_degradation_rate <= 0:
+        raise ValueError(
+            "Annual degradation rate must be greater than zero."
+        )
+
+    if minimum_soh < 0 or minimum_soh >= 100:
+        raise ValueError(
+            "Minimum SoH must be between 0 and 100."
+        )
+
+    if expected_life_years <= 0:
+        raise ValueError(
+            "Expected battery life must be greater than zero."
         )
 
     # ---------------------------------------------------------
@@ -97,6 +127,9 @@ def analyze_battery(
         original_value=battery.original_value,
         current_soh=soh,
         current_rul_years=rul_years,
+        expected_life_years=(
+            expected_life_years
+        ),
     )
 
     value_retention = calculate_value_retention(
