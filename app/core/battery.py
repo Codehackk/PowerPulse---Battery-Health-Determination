@@ -11,10 +11,14 @@ def calculate_soh(rated_capacity, current_capacity):
     if current_capacity < 0:
         raise ValueError("Current capacity cannot be negative.")
 
+    if current_capacity > rated_capacity:
+        raise ValueError(
+            "Current capacity cannot be greater than rated capacity."
+        )
+
     soh = (current_capacity / rated_capacity) * 100
 
-    # Keep the result within a practical percentage range.
-    return min(soh, 100.0)
+    return soh
 
 
 def classify_health(soh):
@@ -34,17 +38,28 @@ def classify_health(soh):
     return "Critical"
 
 
-def calculate_degradation(rated_capacity, current_capacity):
+def calculate_capacity_degradation(rated_capacity, current_capacity):
     """
-    Calculate capacity degradation percentage.
+    Calculate total capacity degradation.
+
+    This represents capacity already lost relative to the
+    original rated capacity. It is NOT an annual degradation rate.
     """
 
     if rated_capacity <= 0:
         raise ValueError("Rated capacity must be greater than zero.")
+
+    if current_capacity < 0:
+        raise ValueError("Current capacity cannot be negative.")
+
+    if current_capacity > rated_capacity:
+        raise ValueError(
+            "Current capacity cannot be greater than rated capacity."
+        )
 
     degradation = (
         (rated_capacity - current_capacity)
         / rated_capacity
     ) * 100
 
-    return max(degradation, 0.0)
+    return degradation

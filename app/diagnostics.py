@@ -10,7 +10,16 @@ from PySide6.QtWidgets import (
     QFormLayout,
 )
 
-from app.core.battery import calculate_soh, classify_health, calculate_degradation
+from app.core.battery import (
+    calculate_soh,
+    classify_health,
+    calculate_capacity_degradation,
+)
+
+from app.core.rul import (
+    estimate_rul_years,
+    classify_rul,
+)
 
 
 class DiagnosticsView(QWidget):
@@ -165,18 +174,57 @@ class DiagnosticsView(QWidget):
         self.cycle_count = QLineEdit()
         self.cycle_count.setPlaceholderText("e.g. 842")
 
-        form.addRow("Battery Chemistry:", self.chemistry)
-        form.addRow("Rated Capacity (kWh):", self.rated_capacity)
-        form.addRow("Current Capacity (kWh):", self.current_capacity)
-        form.addRow("Pack Voltage (V):", self.voltage)
-        form.addRow("Current (A):", self.current)
-        form.addRow("Temperature (°C):", self.temperature)
-        form.addRow("Cycle Count:", self.cycle_count)
+        # NEW: annual degradation rate
+        self.annual_degradation = QLineEdit()
+        self.annual_degradation.setPlaceholderText(
+            "e.g. 2.8"
+        )
+
+        form.addRow(
+            "Battery Chemistry:",
+            self.chemistry,
+        )
+
+        form.addRow(
+            "Rated Capacity (kWh):",
+            self.rated_capacity,
+        )
+
+        form.addRow(
+            "Current Capacity (kWh):",
+            self.current_capacity,
+        )
+
+        form.addRow(
+            "Pack Voltage (V):",
+            self.voltage,
+        )
+
+        form.addRow(
+            "Current (A):",
+            self.current,
+        )
+
+        form.addRow(
+            "Temperature (°C):",
+            self.temperature,
+        )
+
+        form.addRow(
+            "Cycle Count:",
+            self.cycle_count,
+        )
+
+        form.addRow(
+            "Annual Degradation (%/year):",
+            self.annual_degradation,
+        )
 
         battery_layout.addLayout(form)
 
         hint = QLabel(
-            "These values can later be imported automatically from battery telemetry."
+            "Annual degradation is used by the prototype RUL model. "
+            "It should come from historical battery data when available."
         )
         hint.setProperty("role", "hint")
 
@@ -193,7 +241,7 @@ class DiagnosticsView(QWidget):
 
         result_layout = QHBoxLayout(result_card)
 
-        # SoH result
+        # SoH
         soh_container = QVBoxLayout()
 
         soh_label = QLabel("STATE OF HEALTH")
@@ -205,44 +253,129 @@ class DiagnosticsView(QWidget):
         soh_container.addWidget(soh_label)
         soh_container.addWidget(self.soh_value)
 
-        # Degradation result
+        # Total degradation
         degradation_container = QVBoxLayout()
 
-        degradation_label = QLabel("CAPACITY DEGRADATION")
-        degradation_label.setProperty("role", "result_label")
+        degradation_label = QLabel(
+            "CAPACITY LOSS"
+        )
+        degradation_label.setProperty(
+            "role",
+            "result_label",
+        )
 
         self.degradation_value = QLabel("--")
-        self.degradation_value.setProperty("role", "result_value")
+        self.degradation_value.setProperty(
+            "role",
+            "result_value",
+        )
 
-        degradation_container.addWidget(degradation_label)
-        degradation_container.addWidget(self.degradation_value)
+        degradation_container.addWidget(
+            degradation_label
+        )
 
-        # Health classification
+        degradation_container.addWidget(
+            self.degradation_value
+        )
+
+        # Health status
         status_container = QVBoxLayout()
 
-        status_label = QLabel("HEALTH STATUS")
-        status_label.setProperty("role", "result_label")
+        status_label = QLabel(
+            "HEALTH STATUS"
+        )
+        status_label.setProperty(
+            "role",
+            "result_label",
+        )
 
-        self.status_value = QLabel("Awaiting assessment")
-        self.status_value.setProperty("role", "result_status")
+        self.status_value = QLabel(
+            "Awaiting assessment"
+        )
 
-        status_container.addWidget(status_label)
-        status_container.addWidget(self.status_value)
+        self.status_value.setProperty(
+            "role",
+            "result_status",
+        )
 
-        result_layout.addLayout(soh_container)
-        result_layout.addLayout(degradation_container)
-        result_layout.addLayout(status_container)
+        status_container.addWidget(
+            status_label
+        )
+
+        status_container.addWidget(
+            self.status_value
+        )
+
+        # RUL
+        rul_container = QVBoxLayout()
+
+        rul_label = QLabel(
+            "ESTIMATED RUL"
+        )
+        rul_label.setProperty(
+            "role",
+            "result_label",
+        )
+
+        self.rul_value = QLabel("--")
+        self.rul_value.setProperty(
+            "role",
+            "result_value",
+        )
+
+        rul_container.addWidget(
+            rul_label
+        )
+
+        rul_container.addWidget(
+            self.rul_value
+        )
+
+        result_layout.addLayout(
+            soh_container
+        )
+
+        result_layout.addLayout(
+            degradation_container
+        )
+
+        result_layout.addLayout(
+            status_container
+        )
+
+        result_layout.addLayout(
+            rul_container
+        )
 
         layout.addWidget(result_card)
+
+        # ---------------------------------------------------------
+        # RUL explanation
+        # ---------------------------------------------------------
+
+        self.rul_status = QLabel("")
+        self.rul_status.setProperty(
+            "role",
+            "hint",
+        )
+
+        layout.addWidget(
+            self.rul_status
+        )
 
         # ---------------------------------------------------------
         # Error message
         # ---------------------------------------------------------
 
         self.error_label = QLabel("")
-        self.error_label.setProperty("role", "error")
+        self.error_label.setProperty(
+            "role",
+            "error",
+        )
 
-        layout.addWidget(self.error_label)
+        layout.addWidget(
+            self.error_label
+        )
 
         # ---------------------------------------------------------
         # Action Area
@@ -250,48 +383,122 @@ class DiagnosticsView(QWidget):
 
         action_row = QHBoxLayout()
 
-        analyze_button = QPushButton("Run Battery Assessment")
-        analyze_button.setObjectName("analyze_button")
+        analyze_button = QPushButton(
+            "Run Battery Assessment"
+        )
 
-        analyze_button.clicked.connect(self.run_assessment)
+        analyze_button.setObjectName(
+            "analyze_button"
+        )
+
+        analyze_button.clicked.connect(
+            self.run_assessment
+        )
 
         action_row.addStretch()
-        action_row.addWidget(analyze_button)
 
-        layout.addLayout(action_row)
+        action_row.addWidget(
+            analyze_button
+        )
+
+        layout.addLayout(
+            action_row
+        )
 
         layout.addStretch()
 
     def run_assessment(self):
-        """Read the form and calculate battery health."""
+        """
+        Read the form and calculate:
+
+        1. State of Health
+        2. Total capacity loss
+        3. Health classification
+        4. Estimated RUL
+        """
 
         self.error_label.setText("")
+        self.rul_status.setText("")
 
         try:
-            rated_capacity = float(self.rated_capacity.text())
-            current_capacity = float(self.current_capacity.text())
+            rated_capacity = float(
+                self.rated_capacity.text()
+            )
+
+            current_capacity = float(
+                self.current_capacity.text()
+            )
+
+            annual_degradation = float(
+                self.annual_degradation.text()
+            )
+
+            # ---------------------------------------------
+            # Battery health calculations
+            # ---------------------------------------------
 
             soh = calculate_soh(
                 rated_capacity,
                 current_capacity,
             )
 
-            degradation = calculate_degradation(
-                rated_capacity,
-                current_capacity,
+            capacity_loss = (
+                calculate_capacity_degradation(
+                    rated_capacity,
+                    current_capacity,
+                )
             )
 
-            health_status = classify_health(soh)
+            health_status = classify_health(
+                soh
+            )
 
-            self.soh_value.setText(f"{soh:.1f}%")
-            self.degradation_value.setText(f"{degradation:.1f}%")
-            self.status_value.setText(health_status)
+            # ---------------------------------------------
+            # RUL calculation
+            # ---------------------------------------------
+
+            rul_years = estimate_rul_years(
+                current_soh=soh,
+                annual_degradation_rate=annual_degradation,
+            )
+
+            rul_classification = classify_rul(
+                rul_years
+            )
+
+            # ---------------------------------------------
+            # Display results
+            # ---------------------------------------------
+
+            self.soh_value.setText(
+                f"{soh:.1f}%"
+            )
+
+            self.degradation_value.setText(
+                f"{capacity_loss:.1f}%"
+            )
+
+            self.status_value.setText(
+                health_status
+            )
+
+            self.rul_value.setText(
+                f"{rul_years:.1f} years"
+            )
+
+            self.rul_status.setText(
+                f"RUL assessment: {rul_classification}"
+            )
 
         except ValueError as error:
+
             self.soh_value.setText("--")
             self.degradation_value.setText("--")
-            self.status_value.setText("Assessment failed")
+            self.status_value.setText(
+                "Assessment failed"
+            )
+            self.rul_value.setText("--")
 
             self.error_label.setText(
-                f"Please enter valid capacity values. {error}"
+                f"Please enter valid values. {error}"
             )
