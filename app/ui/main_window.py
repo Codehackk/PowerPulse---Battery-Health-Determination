@@ -10,6 +10,7 @@ from PySide6.QtWidgets import (
 )
 
 from app.core.config import APP_TITLE, WINDOW_WIDTH, WINDOW_HEIGHT
+
 from app.views.dashboard import DashboardView
 from app.diagnostics import DiagnosticsView
 from app.views.rul_analysis import RULAnalysisView
@@ -17,6 +18,7 @@ from app.views.valuation import ValuationView
 from app.views.second_life import SecondLifeView
 from app.views.vendors import VendorsView
 from app.views.reports import ReportsView
+from app.views.settings import SettingsView
 
 
 class MainWindow(QMainWindow):
@@ -24,7 +26,10 @@ class MainWindow(QMainWindow):
         super().__init__()
 
         self.setWindowTitle(APP_TITLE)
-        self.resize(WINDOW_WIDTH, WINDOW_HEIGHT)
+        self.resize(
+            WINDOW_WIDTH,
+            WINDOW_HEIGHT,
+        )
 
         self.setStyleSheet("""
             QMainWindow {
@@ -88,10 +93,21 @@ class MainWindow(QMainWindow):
         # ---------------------------------------------------------
 
         central_widget = QWidget()
-        self.setCentralWidget(central_widget)
+        self.setCentralWidget(
+            central_widget
+        )
 
-        main_layout = QHBoxLayout(central_widget)
-        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout = QHBoxLayout(
+            central_widget
+        )
+
+        main_layout.setContentsMargins(
+            0,
+            0,
+            0,
+            0,
+        )
+
         main_layout.setSpacing(0)
 
         # ---------------------------------------------------------
@@ -102,59 +118,134 @@ class MainWindow(QMainWindow):
         sidebar.setObjectName("sidebar")
         sidebar.setFixedWidth(230)
 
-        sidebar_layout = QVBoxLayout(sidebar)
-        sidebar_layout.setContentsMargins(18, 24, 18, 18)
+        sidebar_layout = QVBoxLayout(
+            sidebar
+        )
+
+        sidebar_layout.setContentsMargins(
+            18,
+            24,
+            18,
+            18,
+        )
+
         sidebar_layout.setSpacing(6)
 
+        # ---------------------------------------------------------
         # Branding
+        # ---------------------------------------------------------
+
         logo = QLabel("POWERPULSE")
         logo.setObjectName("brand")
 
         brand_subtitle = QLabel(
             "Battery Intelligence Platform"
         )
+
         brand_subtitle.setObjectName(
             "brand_subtitle"
         )
 
         sidebar_layout.addWidget(logo)
-        sidebar_layout.addWidget(brand_subtitle)
+        sidebar_layout.addWidget(
+            brand_subtitle
+        )
 
+        # ---------------------------------------------------------
         # Navigation buttons
-        dashboard_button = QPushButton("Dashboard")
-        diagnostics_button = QPushButton("Diagnostics")
-        rul_button = QPushButton("RUL Analysis")
-        valuation_button = QPushButton("Valuation")
-        second_life_button = QPushButton("Second Life")
-        vendors_button = QPushButton("Vendors")
-        reports_button = QPushButton("Reports")
+        # ---------------------------------------------------------
 
+        dashboard_button = QPushButton(
+            "Dashboard"
+        )
+
+        diagnostics_button = QPushButton(
+            "Diagnostics"
+        )
+
+        rul_button = QPushButton(
+            "RUL Analysis"
+        )
+
+        valuation_button = QPushButton(
+            "Valuation"
+        )
+
+        second_life_button = QPushButton(
+            "Second Life"
+        )
+
+        vendors_button = QPushButton(
+            "Vendors"
+        )
+
+        reports_button = QPushButton(
+            "Reports"
+        )
+
+        settings_button = QPushButton(
+            "Settings"
+        )
+
+        # Dashboard active initially
         dashboard_button.setObjectName(
             "active_button"
         )
 
-        sidebar_layout.addWidget(dashboard_button)
-        sidebar_layout.addWidget(diagnostics_button)
-        sidebar_layout.addWidget(rul_button)
-        sidebar_layout.addWidget(valuation_button)
-        sidebar_layout.addWidget(second_life_button)
-        sidebar_layout.addWidget(vendors_button)
-        sidebar_layout.addWidget(reports_button)
+        # ---------------------------------------------------------
+        # Sidebar order
+        # ---------------------------------------------------------
 
+        sidebar_layout.addWidget(
+            dashboard_button
+        )
+
+        sidebar_layout.addWidget(
+            diagnostics_button
+        )
+
+        sidebar_layout.addWidget(
+            rul_button
+        )
+
+        sidebar_layout.addWidget(
+            valuation_button
+        )
+
+        sidebar_layout.addWidget(
+            second_life_button
+        )
+
+        sidebar_layout.addWidget(
+            vendors_button
+        )
+
+        sidebar_layout.addWidget(
+            reports_button
+        )
+
+        # Settings is intentionally ABOVE the stretch
+        # so it remains visible.
+        sidebar_layout.addWidget(
+            settings_button
+        )
+
+        # Empty space goes BELOW Settings.
         sidebar_layout.addStretch()
-
-        settings_button = QPushButton("Settings")
-
-        sidebar_layout.addWidget(settings_button)
 
         # ---------------------------------------------------------
         # Content area
         # ---------------------------------------------------------
 
         content_area = QFrame()
-        content_area.setObjectName("content_area")
 
-        content_layout = QVBoxLayout(content_area)
+        content_area.setObjectName(
+            "content_area"
+        )
+
+        content_layout = QVBoxLayout(
+            content_area
+        )
 
         content_layout.setContentsMargins(
             28,
@@ -172,25 +263,63 @@ class MainWindow(QMainWindow):
         pages = QStackedWidget()
 
         dashboard = DashboardView()
+
         diagnostics = DiagnosticsView()
+
         rul_analysis = RULAnalysisView()
+
         valuation = ValuationView()
+
         second_life = SecondLifeView()
+
         vendors = VendorsView()
+
         reports = ReportsView()
 
-        pages.addWidget(dashboard)
-        pages.addWidget(diagnostics)
-        pages.addWidget(rul_analysis)
-        pages.addWidget(valuation)
-        pages.addWidget(second_life)
-        pages.addWidget(vendors)
-        pages.addWidget(reports)
-
-        content_layout.addWidget(pages)
+        settings = SettingsView()
 
         # ---------------------------------------------------------
-        # Navigation helper
+        # Add pages
+        # ---------------------------------------------------------
+
+        pages.addWidget(
+            dashboard
+        )
+
+        pages.addWidget(
+            diagnostics
+        )
+
+        pages.addWidget(
+            rul_analysis
+        )
+
+        pages.addWidget(
+            valuation
+        )
+
+        pages.addWidget(
+            second_life
+        )
+
+        pages.addWidget(
+            vendors
+        )
+
+        pages.addWidget(
+            reports
+        )
+
+        pages.addWidget(
+            settings
+        )
+
+        content_layout.addWidget(
+            pages
+        )
+
+        # ---------------------------------------------------------
+        # Navigation buttons list
         # ---------------------------------------------------------
 
         buttons = [
@@ -201,9 +330,16 @@ class MainWindow(QMainWindow):
             second_life_button,
             vendors_button,
             reports_button,
+            settings_button,
         ]
 
-        def set_active_button(active_button):
+        # ---------------------------------------------------------
+        # Active button helper
+        # ---------------------------------------------------------
+
+        def set_active_button(
+            active_button
+        ):
             for button in buttons:
                 button.setObjectName("")
 
@@ -212,8 +348,14 @@ class MainWindow(QMainWindow):
             )
 
             for button in buttons:
-                button.style().unpolish(button)
-                button.style().polish(button)
+                button.style().unpolish(
+                    button
+                )
+
+                button.style().polish(
+                    button
+                )
+
                 button.update()
 
         # ---------------------------------------------------------
@@ -221,44 +363,121 @@ class MainWindow(QMainWindow):
         # ---------------------------------------------------------
 
         def show_dashboard():
-            pages.setCurrentWidget(dashboard)
-            set_active_button(dashboard_button)
+            pages.setCurrentWidget(
+                dashboard
+            )
+
+            set_active_button(
+                dashboard_button
+            )
 
         def show_diagnostics():
-            pages.setCurrentWidget(diagnostics)
-            set_active_button(diagnostics_button)
+            pages.setCurrentWidget(
+                diagnostics
+            )
+
+            set_active_button(
+                diagnostics_button
+            )
 
         def show_rul_analysis():
-            pages.setCurrentWidget(rul_analysis)
-            set_active_button(rul_button)
+            pages.setCurrentWidget(
+                rul_analysis
+            )
+
+            set_active_button(
+                rul_button
+            )
 
         def show_valuation():
-            pages.setCurrentWidget(valuation)
-            set_active_button(valuation_button)
+            pages.setCurrentWidget(
+                valuation
+            )
+
+            set_active_button(
+                valuation_button
+            )
 
         def show_second_life():
-            pages.setCurrentWidget(second_life)
-            set_active_button(second_life_button)
+            pages.setCurrentWidget(
+                second_life
+            )
+
+            set_active_button(
+                second_life_button
+            )
 
         def show_vendors():
-            pages.setCurrentWidget(vendors)
-            set_active_button(vendors_button)
+            pages.setCurrentWidget(
+                vendors
+            )
+
+            set_active_button(
+                vendors_button
+            )
 
         def show_reports():
-            pages.setCurrentWidget(reports)
-            set_active_button(reports_button)
+            pages.setCurrentWidget(
+                reports
+            )
 
-        dashboard_button.clicked.connect(show_dashboard)
-        diagnostics_button.clicked.connect(show_diagnostics)
-        rul_button.clicked.connect(show_rul_analysis)
-        valuation_button.clicked.connect(show_valuation)
-        second_life_button.clicked.connect(show_second_life)
-        vendors_button.clicked.connect(show_vendors)
-        reports_button.clicked.connect(show_reports)
+            set_active_button(
+                reports_button
+            )
+
+        def show_settings():
+            pages.setCurrentWidget(
+                settings
+            )
+
+            set_active_button(
+                settings_button
+            )
+
+        # ---------------------------------------------------------
+        # Connect buttons
+        # ---------------------------------------------------------
+
+        dashboard_button.clicked.connect(
+            show_dashboard
+        )
+
+        diagnostics_button.clicked.connect(
+            show_diagnostics
+        )
+
+        rul_button.clicked.connect(
+            show_rul_analysis
+        )
+
+        valuation_button.clicked.connect(
+            show_valuation
+        )
+
+        second_life_button.clicked.connect(
+            show_second_life
+        )
+
+        vendors_button.clicked.connect(
+            show_vendors
+        )
+
+        reports_button.clicked.connect(
+            show_reports
+        )
+
+        settings_button.clicked.connect(
+            show_settings
+        )
 
         # ---------------------------------------------------------
         # Final layout
         # ---------------------------------------------------------
 
-        main_layout.addWidget(sidebar)
-        main_layout.addWidget(content_area)
+        main_layout.addWidget(
+            sidebar
+        )
+
+        main_layout.addWidget(
+            content_area
+        )
